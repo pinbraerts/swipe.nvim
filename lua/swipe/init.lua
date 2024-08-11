@@ -142,17 +142,13 @@ end
 local function handle_scroll(direction)
   local window = vim.api.nvim_get_current_win()
   local indicator = M.indicators[window]
-  if indicator then
-    handle(indicator, direction)
-    return
-  end
-  if check_scroll(window, direction) then
-    return scroll(direction)
-  end
-  if get_next_jump(direction) == 0 then
-    return
-  end
   if not indicator then
+    if check_scroll(window, direction) then
+      return scroll(direction)
+    end
+    if get_next_jump(direction) == 0 then
+      return
+    end
     indicator = create(window, direction)
     M.indicators[window] = indicator
   end
