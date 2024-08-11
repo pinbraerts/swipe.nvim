@@ -2,7 +2,7 @@ local api = vim.api
 local M = {}
 
 M.config = {
-  threshold = 25,
+  threshold = 20,
   speed = 1,
   timeout = 200,
 }
@@ -78,6 +78,7 @@ end
 
 function M.get_window_config(indicator)
   local size = M.get_buffer_size(indicator.buffer)
+  local progress = M.config.speed * indicator.progress
   -- stylua: ignore
   return {
     border = "rounded",
@@ -87,10 +88,10 @@ function M.get_window_config(indicator)
     width = size.width,
     row = api.nvim_win_get_height(indicator.parent_window) / 2,
     col = indicator.direction < 0
-      and indicator.progress
+      and progress
       or (api.nvim_win_get_width(indicator.parent_window)
         - api.nvim_win_get_width(indicator.window)
-        - indicator.progress),
+        - progress),
   }
 end
 
@@ -109,7 +110,7 @@ local function delete(indicator)
 end
 
 local function handle_internal(indicator, direction)
-  direction = indicator.direction * direction * M.config.speed
+  direction = indicator.direction * direction
   indicator.progress = indicator.progress + direction
   adjust(indicator)
   if indicator.progress <= 0 then
