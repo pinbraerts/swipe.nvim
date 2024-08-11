@@ -3,6 +3,7 @@ local M = {}
 M.config = {
   threshold = 25,
   speed = 1,
+  timeout = 200,
 }
 
 M.indicators = {}
@@ -86,6 +87,45 @@ local function adjust(indicator)
   })
 end
 
+local function delete(indicator)
+  indicator.timer:stop()
+  indicator.timer:close()
+  vim.schedule(function()
+    vim.api.nvim_buf_delete(indicator.buffer, { force = true, unload = true })
+  end)
+  -- vim.api.nvim_win_close(indicator.window, true)
+  M.indicators[indicator.parent_window] = nil
+end
+
+local function handle_internal(indicator, direction)
+  direction = indicator.direction * direction * M.config.speed
+  indicator.progress = indicator.progress + direction
+  adjust(indicator)
+  if indicator.progress <= 0 then
+    return true
+  end
+  if indicator.progress < M.config.threshold then
+    return false
+  end
+  jump(get_next_jump(indicator.direction))
+  return true
+end
+
+local function start_timer(indicator)
+  indicator.timer:start(M.config.timeout, 0, function()
+    delete(indicator)
+  end)
+end
+
+local function handle(indicator, direction)
+  indicator.timer:stop()
+  if handle_internal(indicator, direction) then
+    delete(indicator)
+    return
+  end
+  start_timer(indicator)
+end
+
 local function create(parent_window, direction)
   local buffer = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buffer, 0, -1, false, {
@@ -108,35 +148,11 @@ local function create(parent_window, direction)
     parent_window = parent_window,
     direction = direction,
     progress = 0,
+    timer = vim.uv.new_timer(),
   }
+  start_timer(indicator)
   adjust(indicator)
   return indicator
-end
-
-local function delete(indicator)
-  vim.api.nvim_buf_delete(indicator.buffer, { force = true, unload = true })
-  -- vim.api.nvim_win_close(indicator.window, true)
-  M.indicators[indicator.parent_window] = nil
-end
-
-local function handle_internal(indicator, direction)
-  direction = indicator.direction * direction * M.config.speed
-  indicator.progress = indicator.progress + direction
-  adjust(indicator)
-  if indicator.progress <= 0 then
-    return true
-  end
-  if indicator.progress < M.config.threshold then
-    return false
-  end
-  jump(get_next_jump(indicator.direction))
-  return true
-end
-
-local function handle(indicator, direction)
-  if handle_internal(indicator, direction) then
-    delete(indicator)
-  end
 end
 
 local function handle_scroll(direction)
@@ -163,7 +179,8 @@ function M.scroll_right()
   return handle_scroll(1)
 end
 
-function M.setup(_)
+function M.setup(config)
+  M.config = vim.tbl_deep_extend("force", M.config, config)
   vim.keymap.set({ "n", "v" }, "<ScrollWheelRight>", M.scroll_right)
   vim.keymap.set({ "n", "v" }, "<ScrollWheelLeft>", M.scroll_left)
 end
