@@ -8,7 +8,7 @@ M.config = {
 
 M.indicators = {}
 
-local function jump(direction)
+function M.jump(direction)
   local key
   if direction == 0 then
     return
@@ -20,7 +20,7 @@ local function jump(direction)
   vim.api.nvim_feedkeys(key, "n", false)
 end
 
-local function get_next_jump(direction)
+function M.get_buffer_jump(direction)
   local jumplist, index = unpack(vim.fn.getjumplist())
   if not jumplist or #jumplist == 0 then
     return 0
@@ -37,20 +37,22 @@ local function get_next_jump(direction)
   return 0
 end
 
-local function get_max_width(window)
-  local buffer = vim.api.nvim_win_get_buf(window)
-  local lines = vim.api.nvim_buf_line_count(buffer)
+function M.get_buffer_size(buffer)
+  local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
   local max_width = 0
-  for i = 1, lines do
-    local line_width = vim.fn.col({ i, "$" }, window)
+  for _, line in ipairs(lines) do
+    local line_width = vim.fn.strchars(line)
     if max_width < line_width then
       max_width = line_width
     end
   end
-  return max_width
+  return {
+    width = max_width,
+    height = #lines,
+  }
 end
 
-local function scroll(direction)
+function M.scroll(direction)
   local key
   if direction == 0 then
     return
@@ -62,29 +64,37 @@ local function scroll(direction)
   vim.api.nvim_feedkeys(key, "n", false)
 end
 
-local function check_scroll(window, direction)
+function M.get_window_scroll(window, direction)
   local left_column = vim.fn.winsaveview()["leftcol"]
   if direction < 0 then
     return left_column > 0
   end
   local width = vim.api.nvim_win_get_width(window)
   local right_column = left_column + width
-  return right_column < get_max_width(window)
+  local buffer = vim.api.nvim_win_get_buf(window)
+  return right_column < M.get_buffer_size(buffer).width
 end
 
-local function adjust(indicator)
+function M.get_window_config(indicator)
+  local size = M.get_buffer_size(indicator.buffer)
   -- stylua: ignore
-  vim.api.nvim_win_set_config(indicator.window, {
+  return {
+    border = "rounded",
     relative = "win",
-    height = 1,
-    width = 3,
+    style = "minimal",
+    height = size.height,
+    width = size.width,
     row = vim.api.nvim_win_get_height(indicator.parent_window) / 2,
     col = indicator.direction < 0
       and indicator.progress
       or (vim.api.nvim_win_get_width(indicator.parent_window)
         - vim.api.nvim_win_get_width(indicator.window)
         - indicator.progress),
-  })
+  }
+end
+
+local function adjust(indicator)
+  vim.api.nvim_win_set_config(indicator.window, M.get_window_config(indicator))
 end
 
 local function delete(indicator)
@@ -107,7 +117,7 @@ local function handle_internal(indicator, direction)
   if indicator.progress < M.config.threshold then
     return false
   end
-  jump(get_next_jump(indicator.direction))
+  M.jump(M.get_buffer_jump(indicator.direction))
   return true
 end
 
@@ -132,15 +142,12 @@ local function create(parent_window, direction)
     (direction < 0 and "  " or "  "),
   })
   vim.bo[buffer].modifiable = false
-  local height = vim.api.nvim_win_get_height(parent_window)
   local window = vim.api.nvim_open_win(buffer, false, {
-    border = "rounded",
     relative = "win",
-    row = height / 2,
+    row = 0,
     col = 0,
-    style = "minimal",
     height = 1,
-    width = 3,
+    width = 1,
   })
   local indicator = {
     buffer = buffer,
@@ -159,10 +166,10 @@ local function handle_scroll(direction)
   local window = vim.api.nvim_get_current_win()
   local indicator = M.indicators[window]
   if not indicator then
-    if check_scroll(window, direction) then
-      return scroll(direction)
+    if M.get_window_scroll(window, direction) then
+      return M.scroll(direction)
     end
-    if get_next_jump(direction) == 0 then
+    if M.get_buffer_jump(direction) == 0 then
       return
     end
     indicator = create(window, direction)
