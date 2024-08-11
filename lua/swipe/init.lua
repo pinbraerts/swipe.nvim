@@ -17,7 +17,7 @@ function M.jump(direction)
   else
     key = vim.api.nvim_replace_termcodes(tostring(-direction) .. "<c-o>", true, false, true)
   end
-  vim.api.nvim_feedkeys(key, "n", false)
+  vim.api.nvim_feedkeys(key, "x", false)
 end
 
 function M.get_buffer_jump(direction)
@@ -61,7 +61,7 @@ function M.scroll(direction)
   else
     key = vim.api.nvim_replace_termcodes("<ScrollWheelRight>", true, false, true)
   end
-  vim.api.nvim_feedkeys(key, "n", false)
+  vim.api.nvim_feedkeys(key, "x", false)
 end
 
 function M.get_window_scroll(window, direction)
