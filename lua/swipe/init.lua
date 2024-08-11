@@ -1,3 +1,4 @@
+local api = vim.api
 local M = {}
 
 M.config = {
@@ -13,11 +14,11 @@ function M.jump(direction)
   if direction == 0 then
     return
   elseif direction > 0 then
-    key = vim.api.nvim_replace_termcodes(tostring(direction) .. "<c-i>", true, false, true)
+    key = api.nvim_replace_termcodes(tostring(direction) .. "<c-i>", true, false, true)
   else
-    key = vim.api.nvim_replace_termcodes(tostring(-direction) .. "<c-o>", true, false, true)
+    key = api.nvim_replace_termcodes(tostring(-direction) .. "<c-o>", true, false, true)
   end
-  vim.api.nvim_feedkeys(key, "x", false)
+  api.nvim_feedkeys(key, "x", false)
 end
 
 function M.get_buffer_jump(direction)
@@ -38,7 +39,7 @@ function M.get_buffer_jump(direction)
 end
 
 function M.get_buffer_size(buffer)
-  local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
+  local lines = api.nvim_buf_get_lines(buffer, 0, -1, true)
   local max_width = 0
   for _, line in ipairs(lines) do
     local line_width = vim.fn.strchars(line)
@@ -57,11 +58,11 @@ function M.scroll(direction)
   if direction == 0 then
     return
   elseif direction < 0 then
-    key = vim.api.nvim_replace_termcodes("<ScrollWheelLeft>", true, false, true)
+    key = api.nvim_replace_termcodes("<ScrollWheelLeft>", true, false, true)
   else
-    key = vim.api.nvim_replace_termcodes("<ScrollWheelRight>", true, false, true)
+    key = api.nvim_replace_termcodes("<ScrollWheelRight>", true, false, true)
   end
-  vim.api.nvim_feedkeys(key, "x", false)
+  api.nvim_feedkeys(key, "x", false)
 end
 
 function M.get_window_scroll(window, direction)
@@ -69,9 +70,9 @@ function M.get_window_scroll(window, direction)
   if direction < 0 then
     return left_column > 0
   end
-  local width = vim.api.nvim_win_get_width(window)
+  local width = api.nvim_win_get_width(window)
   local right_column = left_column + width
-  local buffer = vim.api.nvim_win_get_buf(window)
+  local buffer = api.nvim_win_get_buf(window)
   return right_column < M.get_buffer_size(buffer).width
 end
 
@@ -84,26 +85,26 @@ function M.get_window_config(indicator)
     style = "minimal",
     height = size.height,
     width = size.width,
-    row = vim.api.nvim_win_get_height(indicator.parent_window) / 2,
+    row = api.nvim_win_get_height(indicator.parent_window) / 2,
     col = indicator.direction < 0
       and indicator.progress
-      or (vim.api.nvim_win_get_width(indicator.parent_window)
-        - vim.api.nvim_win_get_width(indicator.window)
+      or (api.nvim_win_get_width(indicator.parent_window)
+        - api.nvim_win_get_width(indicator.window)
         - indicator.progress),
   }
 end
 
 local function adjust(indicator)
-  vim.api.nvim_win_set_config(indicator.window, M.get_window_config(indicator))
+  api.nvim_win_set_config(indicator.window, M.get_window_config(indicator))
 end
 
 local function delete(indicator)
   indicator.timer:stop()
   indicator.timer:close()
   vim.schedule(function()
-    vim.api.nvim_buf_delete(indicator.buffer, { force = true, unload = true })
+    api.nvim_buf_delete(indicator.buffer, { force = true, unload = true })
   end)
-  -- vim.api.nvim_win_close(indicator.window, true)
+  -- api.nvim_win_close(indicator.window, true)
   M.indicators[indicator.parent_window] = nil
 end
 
@@ -137,12 +138,12 @@ local function handle(indicator, direction)
 end
 
 local function create(parent_window, direction)
-  local buffer = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buffer, 0, -1, false, {
+  local buffer = api.nvim_create_buf(false, true)
+  api.nvim_buf_set_lines(buffer, 0, -1, false, {
     (direction < 0 and "  " or "  "),
   })
   vim.bo[buffer].modifiable = false
-  local window = vim.api.nvim_open_win(buffer, false, {
+  local window = api.nvim_open_win(buffer, false, {
     relative = "win",
     row = 0,
     col = 0,
@@ -163,7 +164,7 @@ local function create(parent_window, direction)
 end
 
 local function handle_scroll(direction)
-  local window = vim.api.nvim_get_current_win()
+  local window = api.nvim_get_current_win()
   local indicator = M.indicators[window]
   if not indicator then
     if M.get_window_scroll(window, direction) then
