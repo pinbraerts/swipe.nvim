@@ -1,12 +1,6 @@
 local api = vim.api
 local M = {}
 
-M.config = {
-  threshold = 20,
-  speed = 1,
-  timeout = 200,
-}
-
 function M.jump(direction)
   local key
   if direction == 0 then
@@ -61,14 +55,19 @@ function M.get_buffer_size(buffer)
   }
 end
 
+M.key = {
+  left = "<ScrollWheelLeft>",
+  right = "<ScrollWheelRight>",
+}
+
 function M.scroll(direction)
   local key
   if direction == 0 then
     return
   elseif direction < 0 then
-    key = api.nvim_replace_termcodes("<ScrollWheelLeft>", true, false, true)
+    key = api.nvim_replace_termcodes(M.key.left, true, false, true)
   else
-    key = api.nvim_replace_termcodes("<ScrollWheelRight>", true, false, true)
+    key = api.nvim_replace_termcodes(M.key.right, true, false, true)
   end
   api.nvim_feedkeys(key, "x", false)
 end
@@ -197,10 +196,45 @@ function M.scroll_right()
   return handle_scroll(1)
 end
 
+M.default_config = {
+  threshold = 20,
+  speed = 1,
+  timeout = 200,
+  keymap = {
+    left = M.scroll_left,
+    right = M.scroll_right,
+  },
+}
+
+function M.setup_keymaps(direction)
+  local mapping = M.config.keymap[direction]
+  if not mapping then
+    return
+  end
+  if type(mapping) == "boolean" then
+    mapping = M.default_config.keymap[direction]
+  end
+  if type(mapping) == "function" then
+    mapping = {
+      { "n", "v" },
+      M.key[direction],
+      mapping,
+      {
+        silent = true,
+        nowait = true,
+      },
+    }
+  end
+  pcall(vim.keymap.set, mapping)
+  M.config.keymap[direction] = mapping
+end
+
 function M.setup(config)
-  M.config = vim.tbl_deep_extend("force", M.config, config)
-  vim.keymap.set({ "n", "v" }, "<ScrollWheelRight>", M.scroll_right)
-  vim.keymap.set({ "n", "v" }, "<ScrollWheelLeft>", M.scroll_left)
+  M.config = vim.tbl_deep_extend("force", M.default_config, config)
+  if M.config.keymap then
+    M.setup_keymaps("left")
+    M.setup_keymaps("right")
+  end
 end
 
 return M
