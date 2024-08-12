@@ -6,8 +6,10 @@ jobs:
   unit_tests:
     name: unit tests
     runs-on: ubuntu-22.04
-    matrix:
-      rev: [nightly, v0.9.5, v0.10.0]
+    strategy:
+      fail-fast: true
+      matrix:
+        rev: [nightly, v0.9.5, v0.10.0]
     steps:
       - uses: actions/checkout@v4
 
