@@ -1,0 +1,28 @@
+name: Linting and style checking
+
+on: [push, pull_request]
+
+jobs:
+  luacheck:
+    name: luacheck
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+          sudo luarocks install luacheck
+
+      - name: Lint
+        run: sudo make lint
+
+  stylua:
+    name: stylua
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: JohnnyMorganz/stylua-action@v4
+        with:
+          version: latest
+          args: --color always --check lua
+          token: ${{ secrets.ACTIONS_TOKEN }}
