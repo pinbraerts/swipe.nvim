@@ -12,9 +12,19 @@ function M.jump(direction)
   if direction == 0 then
     return
   elseif direction > 0 then
-    key = api.nvim_replace_termcodes(tostring(direction) .. "<c-i>", true, false, true)
+    key = api.nvim_replace_termcodes(
+      tostring(direction) .. "<c-i>",
+      true,
+      false,
+      true
+    )
   else
-    key = api.nvim_replace_termcodes(tostring(-direction) .. "<c-o>", true, false, true)
+    key = api.nvim_replace_termcodes(
+      tostring(-direction) .. "<c-o>",
+      true,
+      false,
+      true
+    )
   end
   api.nvim_feedkeys(key, "x", false)
 end
