@@ -7,8 +7,6 @@ M.config = {
   timeout = 200,
 }
 
-M.indicators = {}
-
 function M.jump(direction)
   local key
   if direction == 0 then
@@ -106,7 +104,7 @@ local function delete(indicator)
     api.nvim_buf_delete(indicator.buffer, { force = true, unload = true })
   end)
   -- api.nvim_win_close(indicator.window, true)
-  M.indicators[indicator.parent_window] = nil
+  M.indicator = nil
 end
 
 local function handle_internal(indicator, direction)
@@ -166,18 +164,19 @@ end
 
 local function handle_scroll(direction)
   local window = api.nvim_get_current_win()
-  local indicator = M.indicators[window]
-  if not indicator then
+  if M.indicator and M.indicator.parent_window ~= window then
+    delete(M.indicator)
+  end
+  if not M.indicator then
     if M.get_window_scroll(window, direction) then
       return M.scroll(direction)
     end
     if M.get_buffer_jump(direction) == 0 then
       return
     end
-    indicator = create(window, direction)
-    M.indicators[window] = indicator
+    M.indicator = create(window, direction)
   end
-  handle(indicator, direction)
+  handle(M.indicator, direction)
 end
 
 function M.scroll_left()
