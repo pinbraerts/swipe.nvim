@@ -9,11 +9,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        rev: [nightly, v0.9.5, v0.10.0]
+        rev: [nightly, v0.10.0]
     steps:
       - uses: actions/checkout@v4
 
-      - uses: rhysd/actions-setup-vim@v1
+      - uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: ${{ matrix.rev }}
