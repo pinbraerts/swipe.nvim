@@ -225,7 +225,7 @@ function M.setup_keymaps(direction)
       },
     }
   end
-  pcall(vim.keymap.set, mapping)
+  pcall(vim.keymap.set, unpack(mapping))
   M.config.keymap[direction] = mapping
 end
 

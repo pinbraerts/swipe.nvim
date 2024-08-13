@@ -32,13 +32,13 @@ describe("swipe", function()
         left = false,
       },
     })
-    assert.stub(vk.set).was.called_with({
+    assert.stub(vk.set).was.called_with(
       { "n", "v" },
       "<ScrollWheelRight>",
       swipe.scroll_right,
-      { silent = true, nowait = true },
-    })
-    assert.stub(vk.set).was_not.called_with({
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was_not.called_with(
       match.is_table(),
       "<ScrollWheelLeft>",
       match.is_function(),
@@ -54,13 +54,13 @@ describe("swipe", function()
         left = true,
       },
     })
-    assert.stub(vk.set).was.called_with({
+    assert.stub(vk.set).was.called_with(
       { "n", "v" },
       "<ScrollWheelLeft>",
       swipe.scroll_left,
-      { silent = true, nowait = true },
-    })
-    assert.stub(vk.set).was_not.called_with({
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was_not.called_with(
       match.is_table(),
       "<ScrollWheelRight>",
       match.is_function(),
@@ -76,18 +76,18 @@ describe("swipe", function()
         left = true,
       },
     })
-    assert.stub(vk.set).was.called_with({
+    assert.stub(vk.set).was.called_with(
       { "n", "v" },
       "<ScrollWheelLeft>",
       swipe.scroll_left,
-      { silent = true, nowait = true },
-    })
-    assert.stub(vk.set).was.called_with({
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was.called_with(
       { "n", "v" },
       "<ScrollWheelRight>",
       swipe.scroll_right,
-      { silent = true, nowait = true },
-    })
+      { silent = true, nowait = true }
+    )
   end)
 
   it("custom-function", function()
@@ -99,18 +99,18 @@ describe("swipe", function()
         left = false,
       },
     })
-    assert.stub(vk.set).was.called_with({
+    assert.stub(vk.set).was.called_with(
       { "n", "v" },
       "<ScrollWheelRight>",
       custom,
-      { silent = true, nowait = true },
-    })
-    assert.stub(vk.set).was_not.called_with({
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was_not.called_with(
       match.is_table(),
       "<ScrollWheelLeft>",
       match.is_function(),
-      match.is_table(),
-    })
+      match.is_table()
+    )
   end)
 
   it("custom-description", function()
@@ -127,12 +127,12 @@ describe("swipe", function()
         left = false,
       },
     })
-    assert.stub(vk.set).was.called_with(custom)
-    assert.stub(vk.set).was_not.called_with({
+    assert.stub(vk.set).was.called_with(unpack(custom))
+    assert.stub(vk.set).was_not.called_with(
       match.is_table(),
       "<ScrollWheelLeft>",
       match.is_function(),
-      match.is_table(),
-    })
+      match.is_table()
+    )
   end)
 end)
