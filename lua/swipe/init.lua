@@ -1,26 +1,31 @@
 local api = vim.api
 local M = {}
 
+M.key = {
+  left = "<ScrollWheelLeft>",
+  right = "<ScrollWheelRight>",
+  down = "<ScrollWheelDown>",
+  up = "<ScrollWheelUp>",
+  forward = "<c-i>",
+  backward = "<c-o>",
+}
+
+M.symbol = {}
+
+for k, v in pairs(M.key) do
+  M.symbol[k] = api.nvim_replace_termcodes(v, true, false, true)
+end
+
 function M.jump(direction)
   local key
   if direction == 0 then
     return
   elseif direction > 0 then
-    key = api.nvim_replace_termcodes(
-      tostring(direction) .. "<c-i>",
-      true,
-      false,
-      true
-    )
+    key = tostring(direction) .. M.symbol.forward
   else
-    key = api.nvim_replace_termcodes(
-      tostring(-direction) .. "<c-o>",
-      true,
-      false,
-      true
-    )
+    key = tostring(-direction) .. M.symbol.backward
   end
-  api.nvim_feedkeys(key, "x", false)
+  vim.cmd.normal({ bang = true, key })
 end
 
 function M.get_buffer_jump(direction)
@@ -55,25 +60,18 @@ function M.get_buffer_size(buffer)
   }
 end
 
-M.key = {
-  left = "<ScrollWheelLeft>",
-  right = "<ScrollWheelRight>",
-  down = "<ScrollWheelDown>",
-  up = "<ScrollWheelUp>",
-}
-
 function M.scroll(direction)
   local key
   if direction == 0 then
     return
   elseif type(direction) == "string" then
-    key = api.nvim_replace_termcodes(M.key[direction], true, false, true)
+    key = M.symbol[direction]
   elseif direction < 0 then
-    key = api.nvim_replace_termcodes(M.key.left, true, false, true)
+    key = tostring(direction) .. M.symbol.left
   else
-    key = api.nvim_replace_termcodes(M.key.right, true, false, true)
+    key = tostring(-direction) .. M.symbol.right
   end
-  api.nvim_feedkeys(key, "x", false)
+  vim.cmd.normal({ bang = true, key })
 end
 
 function M.get_window_scroll(window, direction)
@@ -193,11 +191,10 @@ local function handle_scroll(direction)
 end
 
 function M.disable_scroll(direction)
-  -- if M.indicator and M.indicator.progress > M.config.disable_threshold then
-  --   return
-  -- end
-  -- M.scroll(direction)
-  -- not working yet
+  if M.indicator and M.indicator.progress > M.config.disable_threshold then
+    return
+  end
+  M.scroll(direction)
 end
 
 function M.disable_scroll_up()
