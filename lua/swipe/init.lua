@@ -58,12 +58,16 @@ end
 M.key = {
   left = "<ScrollWheelLeft>",
   right = "<ScrollWheelRight>",
+  down = "<ScrollWheelDown>",
+  up = "<ScrollWheelUp>",
 }
 
 function M.scroll(direction)
   local key
   if direction == 0 then
     return
+  elseif type(direction) == "string" then
+    key = api.nvim_replace_termcodes(M.key[direction], true, false, true)
   elseif direction < 0 then
     key = api.nvim_replace_termcodes(M.key.left, true, false, true)
   else
@@ -188,6 +192,22 @@ local function handle_scroll(direction)
   handle(M.indicator, direction)
 end
 
+function M.disable_scroll(direction)
+  -- if M.indicator and M.indicator.progress > M.config.disable_threshold then
+  --   return
+  -- end
+  -- M.scroll(direction)
+  -- not working yet
+end
+
+function M.disable_scroll_up()
+  return M.disable_scroll("up")
+end
+
+function M.disable_scroll_down()
+  return M.disable_scroll("down")
+end
+
 function M.scroll_left()
   return handle_scroll(-1)
 end
@@ -198,11 +218,14 @@ end
 
 M.default_config = {
   threshold = 20,
+  disable_threshold = 5,
   speed = 1,
   timeout = 200,
   keymap = {
     left = M.scroll_left,
     right = M.scroll_right,
+    up = M.disable_scroll_up,
+    down = M.disable_scroll_down,
   },
 }
 
@@ -231,9 +254,14 @@ end
 
 function M.setup(config)
   M.config = vim.tbl_deep_extend("force", M.default_config, config)
+  if M.config.keymap and type(M.config.keymap) == "boolean" then
+    M.config.keymap = M.default_config.keymap
+  end
   if M.config.keymap then
     M.setup_keymaps("left")
     M.setup_keymaps("right")
+    M.setup_keymaps("up")
+    M.setup_keymaps("down")
   end
 end
 

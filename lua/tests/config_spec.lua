@@ -24,12 +24,45 @@ describe("swipe", function()
     assert.stub(vk.set).is_not.called()
   end)
 
+  it("full", function()
+    swipe.setup({
+      threshold = threshold,
+      keymap = true,
+    })
+    assert.stub(vk.set).was.called_with(
+      { "n", "v" },
+      "<ScrollWheelUp>",
+      swipe.disable_scroll_up,
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was.called_with(
+      { "n", "v" },
+      "<ScrollWheelDown>",
+      swipe.disable_scroll_down,
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was.called_with(
+      { "n", "v" },
+      "<ScrollWheelRight>",
+      swipe.scroll_right,
+      { silent = true, nowait = true }
+    )
+    assert.stub(vk.set).was.called_with(
+      { "n", "v" },
+      "<ScrollWheelLeft>",
+      swipe.scroll_left,
+      { silent = true, nowait = true }
+    )
+  end)
+
   it("only-right", function()
     swipe.setup({
       threshold = threshold,
       keymap = {
         right = true,
         left = false,
+        up = false,
+        down = false,
       },
     })
     assert.stub(vk.set).was.called_with(
@@ -42,8 +75,22 @@ describe("swipe", function()
       match.is_table(),
       "<ScrollWheelLeft>",
       match.is_function(),
+      match.is_table()
+    )
+    assert
+      .stub(vk.set).was_not
+      .called_with(
+        match.is_table(),
+        "<ScrollWheelUp>",
+        match.is_function(),
+        match.is_table()
+      )
+    assert.stub(vk.set).was_not.called_with(
       match.is_table(),
-    })
+      "<ScrollWheelDown>",
+      match.is_function(),
+      match.is_table()
+    )
   end)
 
   it("only-left", function()
@@ -52,6 +99,8 @@ describe("swipe", function()
       keymap = {
         right = false,
         left = true,
+        up = false,
+        down = false,
       },
     })
     assert.stub(vk.set).was.called_with(
@@ -64,8 +113,22 @@ describe("swipe", function()
       match.is_table(),
       "<ScrollWheelRight>",
       match.is_function(),
+      match.is_table()
+    )
+    assert
+      .stub(vk.set).was_not
+      .called_with(
+        match.is_table(),
+        "<ScrollWheelUp>",
+        match.is_function(),
+        match.is_table()
+      )
+    assert.stub(vk.set).was_not.called_with(
       match.is_table(),
-    })
+      "<ScrollWheelDown>",
+      match.is_function(),
+      match.is_table()
+    )
   end)
 
   it("both", function()
