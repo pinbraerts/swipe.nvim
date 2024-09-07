@@ -56,12 +56,12 @@ function M.perform(orientation, amount, window)
       amount = -amount
       key = "<c-e>"
     end
+    key = vim.api.nvim_replace_termcodes(key, true, false, true)
   else
     return
   end
-  key = vim.api.nvim_replace_termcodes(key, true, false, true)
   vim.api.nvim_win_call(window, function()
-    vim.cmd.normal({ bang = true, tostring(amount) .. key })
+    vim.api.nvim_feedkeys(tostring(amount) .. key, "x", false)
   end)
 end
 
