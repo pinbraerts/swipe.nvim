@@ -1,5 +1,6 @@
 --- @module "swipe.scroll"
 local M = {}
+local validate = require("swipe.validate")
 
 --- @enum swipe.scroll.Orientation
 M.orientation = {
@@ -7,23 +8,15 @@ M.orientation = {
   vertical = "vertical",
 }
 
-local function validate(orientation, number, name, window)
+local function valid(orientation, number, name, window)
   vim.validate({
-    window = { window, vim.api.nvim_win_is_valid, "valid handle" },
-    orientation = {
+    window = validate.window(window),
+    orientation = validate.enum(
       orientation,
-      function()
-        return M.orientation[orientation] ~= nil
-      end,
-      "swipe.scroll.Orientation",
-    },
-    [name] = {
-      number,
-      function()
-        return number ~= 0
-      end,
-      "non-zero number",
-    },
+      M.orientation,
+      "swipe.scroll.Orientation"
+    ),
+    [name] = validate.non_zero(number),
   })
 end
 
@@ -40,7 +33,7 @@ end
 --- @param window? number window handle (current window if nil)
 function M.perform(orientation, amount, window)
   window = window or vim.api.nvim_get_current_win()
-  validate(orientation, amount, "amount", window)
+  valid(orientation, amount, "amount", window)
   local key
   if orientation == M.orientation.horizontal then
     if amount > 0 then
@@ -73,7 +66,7 @@ end
 --- @return number amount lines possible to scroll
 function M.possible(orientation, direction, window, visible)
   window = window or vim.api.nvim_get_current_win()
-  validate(orientation, direction, "direction", window)
+  valid(orientation, direction, "direction", window)
   vim.validate({ visible = { visible, "boolean", true } })
   if visible == nil then
     visible = true
