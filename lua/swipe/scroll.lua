@@ -11,11 +11,7 @@ M.orientation = {
 local function valid(orientation, number, name, window)
   vim.validate({
     window = validate.window(window),
-    orientation = validate.enum(
-      orientation,
-      M.orientation,
-      "swipe.scroll.Orientation"
-    ),
+    orientation = validate.enum(orientation, M.orientation, "swipe.scroll.Orientation"),
     [name] = validate.non_zero(number),
   })
 end
