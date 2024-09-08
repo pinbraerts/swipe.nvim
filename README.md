@@ -15,8 +15,22 @@ require('swipe').setup {
   threshold = 20,
   -- how fast the arrow window moves (characters per keypress)
   speed = 1,
-  -- how fast the arrow window disappears (ms)
-  timeout = 200,
+  -- how fast the arrow window disappears (ms till backwards motion)
+  timeout = 50,
+  -- custom mappings
+  keymap = {
+    left = "1gg", -- custom keys
+    right = function() end, -- custom function
+    up = { "n", "<ScrollWheelUp>", "1gg", { silent = true } }, -- custom spec
+    down = true, -- default mapping
+    -- down = false, -- disable default mapping
+  },
+  -- keymap = false, -- to disable all default mappings
+  -- actions on swipes
+  action = {
+    horizontal = require("swipe.jump").to_different_buffer,
+    vertical = function(direction) end, -- custom function
+  },
 }
 ```
 
