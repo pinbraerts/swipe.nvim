@@ -37,4 +37,17 @@ function M.enum(item, enum, name)
   }
 end
 
+--- Check common arguments
+--- @param orientation swipe.scroll.Orientation
+--- @param number number
+--- @param window number window handle
+function M.common(orientation, number, name, window)
+  local scroll = require("swipe.scroll")
+  vim.validate({
+    window = M.window(window),
+    orientation = M.enum(orientation, scroll.orientation, "swipe.scroll.Orientation"),
+    [name] = M.non_zero(number),
+  })
+end
+
 return M

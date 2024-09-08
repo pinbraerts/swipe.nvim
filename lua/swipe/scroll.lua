@@ -8,14 +8,6 @@ M.orientation = {
   vertical = "vertical",
 }
 
-local function valid(orientation, number, name, window)
-  vim.validate({
-    window = validate.window(window),
-    orientation = validate.enum(orientation, M.orientation, "swipe.scroll.Orientation"),
-    [name] = validate.non_zero(number),
-  })
-end
-
 --- `nvim_win_call(window, vim.fn.winsaveview)`
 --- @param window number window handle
 --- @return vim.fn.winsaveview.ret
@@ -29,7 +21,7 @@ end
 --- @param window? number window handle (current window if nil)
 function M.perform(orientation, amount, window)
   window = window or vim.api.nvim_get_current_win()
-  valid(orientation, amount, "amount", window)
+  validate.common(orientation, amount, "amount", window)
   local key
   if orientation == M.orientation.horizontal then
     if amount > 0 then
@@ -62,7 +54,7 @@ end
 --- @return number amount lines possible to scroll
 function M.possible(orientation, direction, window, visible)
   window = window or vim.api.nvim_get_current_win()
-  valid(orientation, direction, "direction", window)
+  validate.common(orientation, direction, "direction", window)
   vim.validate({ visible = { visible, "boolean", true } })
   if visible == nil then
     visible = true
