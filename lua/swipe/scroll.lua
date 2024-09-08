@@ -72,7 +72,7 @@ function M.possible(orientation, direction, window, visible)
   local last_line = vim.fn.line("w$", window)
   local lines = vim.api.nvim_buf_line_count(buffer)
   if orientation == M.orientation.vertical then
-    if direction < 0 then
+    if direction > 0 then
       return first_line - 1
     elseif last_line < lines then
       return lines - last_line - 1
