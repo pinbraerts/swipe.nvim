@@ -39,18 +39,25 @@ function M.count(direction, window)
   if not jumplist or #jumplist == 0 or not jumplist[index] then
     return 0
   end
+  index = index + 1
   local times = vim.fn.abs(direction)
   direction = direction / times
   local count = #jumplist
-  local buffer = jumplist[index].bufnr
+  local buffer
+  if index <= #jumplist then
+    buffer = jumplist[index].bufnr
+  else
+    buffer = vim.api.nvim_get_current_buf()
+  end
   local next_index = index + direction
-  while next_index > 0 and next_index < count do
-    if buffer ~= jumplist[next_index].bufnr then
+  while next_index > 0 and next_index <= count do
+    local next_buffer = jumplist[next_index].bufnr
+    if vim.api.nvim_buf_is_valid(next_buffer) and buffer ~= next_buffer then
       times = times - 1
-      buffer = jumplist[next_index].bufnr
+      buffer = next_buffer
     end
     if times == 0 then
-      return next_index - index - 1
+      return next_index - index
     end
     next_index = next_index + direction
   end
