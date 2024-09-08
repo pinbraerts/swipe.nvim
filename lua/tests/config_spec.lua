@@ -130,12 +130,15 @@ describe("swipe.config", function()
       "n",
       "<ScrollWheelRight>",
       cf,
+      {},
     }
     swipe.setup({
       threshold = threshold,
       keymap = {
         right = custom,
         left = false,
+        down = false,
+        up = false,
       },
     })
     assert.stub(vk.set).was.called_with(unpack(custom))

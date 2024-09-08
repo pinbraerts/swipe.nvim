@@ -51,9 +51,7 @@ describe("validate", function()
     }
 
     it("valid", function()
-      assert.is.True(
-        pcall(vim.validate, { item = validate.enum(enum.one, enum) })
-      )
+      assert.is.True(pcall(vim.validate, { item = validate.enum(enum.one, enum) }))
     end)
 
     it("custom", function()
