@@ -2,7 +2,7 @@ local mock = require("luassert.mock")
 local match = require("luassert.match")
 local threshold = 10
 
-describe("swipe", function()
+describe("swipe.config", function()
   local vk
   local swipe
 
@@ -29,30 +29,18 @@ describe("swipe", function()
       threshold = threshold,
       keymap = true,
     })
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelUp>",
-      swipe.disable_scroll_up,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelDown>",
-      swipe.disable_scroll_down,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelRight>",
-      swipe.scroll_right,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelLeft>",
-      swipe.scroll_left,
-      { silent = true, nowait = true }
-    )
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelUp>", swipe.scroll_up, { silent = true, nowait = true })
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelDown>", swipe.scroll_down, { silent = true, nowait = true })
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelRight>", swipe.scroll_right, { silent = true, nowait = true })
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelLeft>", swipe.scroll_left, { silent = true, nowait = true })
   end)
 
   it("only-right", function()
@@ -65,32 +53,18 @@ describe("swipe", function()
         down = false,
       },
     })
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelRight>",
-      swipe.scroll_right,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was_not.called_with(
-      match.is_table(),
-      "<ScrollWheelLeft>",
-      match.is_function(),
-      match.is_table()
-    )
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelRight>", swipe.scroll_right, { silent = true, nowait = true })
     assert
       .stub(vk.set).was_not
-      .called_with(
-        match.is_table(),
-        "<ScrollWheelUp>",
-        match.is_function(),
-        match.is_table()
-      )
-    assert.stub(vk.set).was_not.called_with(
-      match.is_table(),
-      "<ScrollWheelDown>",
-      match.is_function(),
-      match.is_table()
-    )
+      .called_with(match.is_table(), "<ScrollWheelLeft>", match.is_function(), match.is_table())
+    assert
+      .stub(vk.set).was_not
+      .called_with(match.is_table(), "<ScrollWheelUp>", match.is_function(), match.is_table())
+    assert
+      .stub(vk.set).was_not
+      .called_with(match.is_table(), "<ScrollWheelDown>", match.is_function(), match.is_table())
   end)
 
   it("only-left", function()
@@ -103,32 +77,18 @@ describe("swipe", function()
         down = false,
       },
     })
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelLeft>",
-      swipe.scroll_left,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was_not.called_with(
-      match.is_table(),
-      "<ScrollWheelRight>",
-      match.is_function(),
-      match.is_table()
-    )
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelLeft>", swipe.scroll_left, { silent = true, nowait = true })
     assert
       .stub(vk.set).was_not
-      .called_with(
-        match.is_table(),
-        "<ScrollWheelUp>",
-        match.is_function(),
-        match.is_table()
-      )
-    assert.stub(vk.set).was_not.called_with(
-      match.is_table(),
-      "<ScrollWheelDown>",
-      match.is_function(),
-      match.is_table()
-    )
+      .called_with(match.is_table(), "<ScrollWheelRight>", match.is_function(), match.is_table())
+    assert
+      .stub(vk.set).was_not
+      .called_with(match.is_table(), "<ScrollWheelUp>", match.is_function(), match.is_table())
+    assert
+      .stub(vk.set).was_not
+      .called_with(match.is_table(), "<ScrollWheelDown>", match.is_function(), match.is_table())
   end)
 
   it("both", function()
@@ -139,18 +99,12 @@ describe("swipe", function()
         left = true,
       },
     })
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelLeft>",
-      swipe.scroll_left,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelRight>",
-      swipe.scroll_right,
-      { silent = true, nowait = true }
-    )
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelLeft>", swipe.scroll_left, { silent = true, nowait = true })
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelRight>", swipe.scroll_right, { silent = true, nowait = true })
   end)
 
   it("custom-function", function()
@@ -162,18 +116,12 @@ describe("swipe", function()
         left = false,
       },
     })
-    assert.stub(vk.set).was.called_with(
-      { "n", "v" },
-      "<ScrollWheelRight>",
-      custom,
-      { silent = true, nowait = true }
-    )
-    assert.stub(vk.set).was_not.called_with(
-      match.is_table(),
-      "<ScrollWheelLeft>",
-      match.is_function(),
-      match.is_table()
-    )
+    assert
+      .stub(vk.set).was
+      .called_with({ "n", "v" }, "<ScrollWheelRight>", custom, { silent = true, nowait = true })
+    assert
+      .stub(vk.set).was_not
+      .called_with(match.is_table(), "<ScrollWheelLeft>", match.is_function(), match.is_table())
   end)
 
   it("custom-description", function()
@@ -191,11 +139,8 @@ describe("swipe", function()
       },
     })
     assert.stub(vk.set).was.called_with(unpack(custom))
-    assert.stub(vk.set).was_not.called_with(
-      match.is_table(),
-      "<ScrollWheelLeft>",
-      match.is_function(),
-      match.is_table()
-    )
+    assert
+      .stub(vk.set).was_not
+      .called_with(match.is_table(), "<ScrollWheelLeft>", match.is_function(), match.is_table())
   end)
 end)
